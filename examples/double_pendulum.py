@@ -39,7 +39,7 @@ terminalModel = crocoddyl.IntegratedActionModelEuler(
     crocoddyl.DifferentialActionModelFreeFwdDynamics(state, actuation, terminalCostModel), dt)
 
 # Creating the shooting problem and the FDDP solver
-T = 100
+T = 200
 x0 = np.array([3.14, 0., 0., 0.])
 problem = crocoddyl.ShootingProblem(x0, [runningModel] * T, terminalModel)
 solver = crocoddyl.SolverFDDP(problem)
@@ -56,8 +56,14 @@ elif WITHPLOT:
 else:
     solver.setCallbacks([crocoddyl.CallbackVerbose()])
 
-# Solving the problem with the FDDP solver
-solver.solve()
+# Creating initial guess and solving the problem with the FDDP solver
+xf = np.array([0., 0., 0., 0.])
+xs_0 = np.linspace(x0[0], xf[0], T+1)
+xs = [np.array([0.0,0.0,0.0,0.0]) for _ in range(T+1)]
+for k in range(T):
+    xs[k][0] = xs_0[k]
+xs[0] = x0
+solver.solve(init_xs = xs)
 
 # Plotting the entire motion
 if WITHPLOT:
