@@ -77,7 +77,7 @@ class SolverFDDP : public SolverDDP {
    */
   virtual const Eigen::Vector2d& expectedImprovement();
 
-  void linear_forward_rollout();
+  // void linear_forward_rollout();
 
   /**
    * @brief Update internal values for computing the expected improvement

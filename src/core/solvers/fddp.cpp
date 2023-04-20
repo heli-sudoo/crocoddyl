@@ -68,8 +68,7 @@ namespace crocoddyl
         }
         break;
       }
-      // updateExpectedImprovement();
-      linear_forward_rollout();
+      updateExpectedImprovement();
       // We need to recalculate the derivatives when the step length passes
       recalcDiff = false;
       for (std::vector<double>::const_iterator it = alphas_.begin(); it != alphas_.end(); ++it)
@@ -84,9 +83,9 @@ namespace crocoddyl
         {
           continue;
         }
-        // expectedImprovement();        
+        expectedImprovement();        
         dVexp_ = steplength_ * (d_[0] + 0.5 * steplength_ * d_[1]);
-
+       
         if (dVexp_ >= 0)
         { // descend direction
           if (d_[0] < th_grad_ || dV_ > th_acceptstep_ * dVexp_)
@@ -197,42 +196,6 @@ namespace crocoddyl
         dq_ += fs_[t].dot(fTVxx_p_);
       }
     }
-  }
-
-  void SolverFDDP::linear_forward_rollout()
-  {
-    d_.setZero();
-
-    const std::size_t T = problem_->get_T();
-    const std::vector<boost::shared_ptr<ActionDataAbstract>> &datas = problem_->get_runningDatas();
-
-    Eigen::Vector2d du, dx, dx_next;
-    dx.setZero(problem_->get_nx());
-    dx_next.setZero(problem_->get_nx());
-
-    for (std::size_t t = 0; t < T; ++t)
-    {      
-      const boost::shared_ptr<ActionDataAbstract> &d = datas[t];
-      
-      const auto& At = d->Fx;
-      const auto& Bt = d->Fu;
-
-      du = -k_[t] - K_[t] * dx;
-      dx_next = At * dx + Bt * du + fs_[t+1];
-
-      d_[0] += d->Lu.transpose()*du;
-      d_[0] += d->Lx.transpose()*dx;
-      d_[1] += du.transpose() * d->Luu* du;
-      d_[1] += dx.transpose() * d->Lxx* dx;
-      d_[1] += dx.transpose() * d->Lxu* du;
-
-      dx = dx_next;
-    }    
-    const boost::shared_ptr<ActionDataAbstract> &d = problem_->get_terminalData();
-    d_[0] += d->Lx.transpose()*dx;
-    d_[1] += dx.transpose() * d->Lxx* dx;    
-
-    d_ = -d_;
   }
 
   void SolverFDDP::forwardPass(const double steplength)
