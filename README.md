@@ -138,6 +138,21 @@ export PYTHONPATH=/opt/openrobots/lib/python2.7/site-packages:$PYTHONPATH
 * [matplotlib](https://matplotlib.org/) (optional for examples)
 
 
+Build instructions
+
+```bash
+mkdir build && cd build 
+cmake ..
+make -j
+```
+
+Note: You might encounter an error where CMake cannot find Python2. This is likely because you are using a
+relatively older CMake version. To address the problem, simply specify the path to your python executable
+
+```base
+cmake -DPYTHON_EXECUTABLE=$PATH_TO_PYTHON_EXECUTABLE ..
+```
+
 You can run examples, unit-tests and benchmarks from your build dir:
 
 ```bash
