@@ -2,6 +2,7 @@ import os
 import sys
 
 import crocoddyl
+import crocoddyl.utils
 import numpy as np
 import example_robot_data
 from crocoddyl.utils.pendulum import CostModelDoublePendulum, ActuationModelDoublePendulum
@@ -42,8 +43,17 @@ terminalModel = crocoddyl.IntegratedActionModelEuler(
 T = 200
 x0 = np.array([3.14, 0., 0., 0.])
 problem = crocoddyl.ShootingProblem(x0, [runningModel] * T, terminalModel)
-solver = crocoddyl.SolverFDDP(problem)
+xs = [np.array([0.0,0.0,0.0,0.0]) for _ in range(T+1)]
 
+# Creating initial guess and solving the problem with the FDDP solver
+xf = np.array([0., 0., 0., 0.])
+xs_0 = np.linspace(x0[0], xf[0], T+1)
+xs = [np.array([0.0,0.0,0.0,0.0]) for _ in range(T+1)]
+for k in range(T):
+    xs[k][0] = xs_0[k]
+xs[0] = x0
+
+solver = crocoddyl.SolverFDDP(problem)
 cameraTF = [1.4, 0., 0.2, 0.5, 0.5, 0.5, 0.5]
 if WITHDISPLAY and WITHPLOT:
     display = crocoddyl.GepettoDisplay(pendulum, 4, 4, cameraTF, False)
@@ -55,15 +65,10 @@ elif WITHPLOT:
     solver.setCallbacks([crocoddyl.CallbackLogger(), crocoddyl.CallbackVerbose()])
 else:
     solver.setCallbacks([crocoddyl.CallbackVerbose()])
-
-# Creating initial guess and solving the problem with the FDDP solver
-xf = np.array([0., 0., 0., 0.])
-xs_0 = np.linspace(x0[0], xf[0], T+1)
-xs = [np.array([0.0,0.0,0.0,0.0]) for _ in range(T+1)]
-for k in range(T):
-    xs[k][0] = xs_0[k]
-xs[0] = x0
+crocoddyl.enable_profiler()
 solver.solve(init_xs = xs)
+crocoddyl.stop_watch_report(6)
+
 
 # Plotting the entire motion
 if WITHPLOT:

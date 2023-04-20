@@ -122,7 +122,7 @@ x0 = np.concatenate([q0, pinocchio.utils.zero(state.nv)])
 problem = crocoddyl.ShootingProblem(x0, [runningModel] * T, terminalModel)
 
 # Creating the DDP solver for this OC problem, defining a logger
-solver = crocoddyl.SolverFDDP(problem)
+solver = crocoddyl.SolverFDDP2(problem)
 if WITHDISPLAY and WITHPLOT:
     solver.setCallbacks([
         crocoddyl.CallbackLogger(),
@@ -142,7 +142,9 @@ else:
 # Solving it with the FDDP algorithm
 xs = [x0] * (solver.problem.T + 1)
 us = solver.problem.quasiStatic([x0] * solver.problem.T)
+crocoddyl.enable_profiler()
 solver.solve(xs, us, 500, False, 0.1)
+crocoddyl.stop_watch_report(6)
 
 # Visualizing the solution in gepetto-viewer
 if WITHDISPLAY:

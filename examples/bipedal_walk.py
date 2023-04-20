@@ -37,11 +37,12 @@ GAITPHASES = \
 cameraTF = [3., 3.68, 0.84, 0.2, 0.62, 0.72, 0.22]
 
 solver = [None] * len(GAITPHASES)
+crocoddyl.enable_profiler()
 for i, phase in enumerate(GAITPHASES):
     for key, value in phase.items():
         if key == 'walking':
             # Creating a walking problem
-            solver[i] = crocoddyl.SolverFDDP(
+            solver[i] = crocoddyl.SolverFDDP2(
                 gait.createWalkingProblem(x0, value['stepLength'], value['stepHeight'], value['timeStep'],
                                           value['stepKnots'], value['supportKnots']))
             solver[i].th_stop = 1e-7
@@ -72,7 +73,7 @@ for i, phase in enumerate(GAITPHASES):
 
     # Defining the final state as initial one for the next phase
     x0 = solver[i].xs[-1]
-
+crocoddyl.stop_watch_report(6)
 # Display the entire motion
 if WITHDISPLAY:
     display = crocoddyl.GepettoDisplay(talos_legs, frameNames=[rightFoot, leftFoot])
