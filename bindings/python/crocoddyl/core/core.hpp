@@ -60,6 +60,7 @@ void exposeActivation2NormBarrier();
 void exposeSolverDDP();
 void exposeSolverKKT();
 void exposeSolverFDDP();
+void exposeSolverFDDP2();
 void exposeSolverBoxQP();
 void exposeSolverBoxDDP();
 void exposeSolverBoxFDDP();
