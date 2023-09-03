@@ -140,10 +140,11 @@ else:
     solver.setCallbacks([crocoddyl.CallbackVerbose()])
 
 # Solving it with the FDDP algorithm
-xs = [x0] * (solver.problem.T + 1)
-us = solver.problem.quasiStatic([x0] * solver.problem.T)
 crocoddyl.enable_profiler()
-solver.solve(xs, us, 500, False, 0.1)
+for _ in range(10):
+    xs = [x0] * (solver.problem.T + 1)
+    us = solver.problem.quasiStatic([x0] * solver.problem.T)
+    solver.solve(xs, us, 500, False, 0.1)
 crocoddyl.stop_watch_report(6)
 
 # Visualizing the solution in gepetto-viewer

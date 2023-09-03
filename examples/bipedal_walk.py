@@ -38,41 +38,42 @@ cameraTF = [3., 3.68, 0.84, 0.2, 0.62, 0.72, 0.22]
 
 solver = [None] * len(GAITPHASES)
 crocoddyl.enable_profiler()
-for i, phase in enumerate(GAITPHASES):
-    for key, value in phase.items():
-        if key == 'walking':
-            # Creating a walking problem
-            solver[i] = crocoddyl.SolverFDDP2(
-                gait.createWalkingProblem(x0, value['stepLength'], value['stepHeight'], value['timeStep'],
-                                          value['stepKnots'], value['supportKnots']))
-            solver[i].th_stop = 1e-7
+for _ in range(25):
+    for i, phase in enumerate(GAITPHASES):
+        for key, value in phase.items():
+            if key == 'walking':
+                # Creating a walking problem
+                solver[i] = crocoddyl.SolverFDDP2(
+                    gait.createWalkingProblem(x0, value['stepLength'], value['stepHeight'], value['timeStep'],
+                                            value['stepKnots'], value['supportKnots']))
+                solver[i].th_stop = 1e-7
 
-    # Added the callback functions
-    print('*** SOLVE ' + key + ' ***')
-    if WITHDISPLAY and WITHPLOT:
-        display = crocoddyl.GepettoDisplay(talos_legs, 4, 4, cameraTF, frameNames=[rightFoot, leftFoot])
-        solver[i].setCallbacks(
-            [crocoddyl.CallbackLogger(),
-             crocoddyl.CallbackVerbose(),
-             crocoddyl.CallbackDisplay(display)])
-    elif WITHDISPLAY:
-        display = crocoddyl.GepettoDisplay(talos_legs, 4, 4, cameraTF, frameNames=[rightFoot, leftFoot])
-        solver[i].setCallbacks([crocoddyl.CallbackVerbose(), crocoddyl.CallbackDisplay(display)])
-    elif WITHPLOT:
-        solver[i].setCallbacks([
-            crocoddyl.CallbackLogger(),
-            crocoddyl.CallbackVerbose(),
-        ])
-    else:
-        solver[i].setCallbacks([crocoddyl.CallbackVerbose()])
+        # Added the callback functions
+        print('*** SOLVE ' + key + ' ***')
+        if WITHDISPLAY and WITHPLOT:
+            display = crocoddyl.GepettoDisplay(talos_legs, 4, 4, cameraTF, frameNames=[rightFoot, leftFoot])
+            solver[i].setCallbacks(
+                [crocoddyl.CallbackLogger(),
+                crocoddyl.CallbackVerbose(),
+                crocoddyl.CallbackDisplay(display)])
+        elif WITHDISPLAY:
+            display = crocoddyl.GepettoDisplay(talos_legs, 4, 4, cameraTF, frameNames=[rightFoot, leftFoot])
+            solver[i].setCallbacks([crocoddyl.CallbackVerbose(), crocoddyl.CallbackDisplay(display)])
+        elif WITHPLOT:
+            solver[i].setCallbacks([
+                crocoddyl.CallbackLogger(),
+                crocoddyl.CallbackVerbose(),
+            ])
+        else:
+            solver[i].setCallbacks([crocoddyl.CallbackVerbose()])
 
-    # Solving the problem with the DDP solver
-    xs = [x0] * (solver[i].problem.T + 1)
-    us = solver[i].problem.quasiStatic([x0] * solver[i].problem.T)
-    solver[i].solve(xs, us, 100, False)
+        # Solving the problem with the DDP solver
+        xs = [x0] * (solver[i].problem.T + 1)
+        us = solver[i].problem.quasiStatic([x0] * solver[i].problem.T)
+        solver[i].solve(xs, us, 100, False)
 
-    # Defining the final state as initial one for the next phase
-    x0 = solver[i].xs[-1]
+        # Defining the final state as initial one for the next phase
+        x0 = solver[i].xs[-1]
 crocoddyl.stop_watch_report(6)
 # Display the entire motion
 if WITHDISPLAY:

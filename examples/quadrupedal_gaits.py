@@ -72,27 +72,27 @@ for i, phase in enumerate(GAITPHASES):
     for key, value in phase.items():
         if key == 'walking':
             # Creating a walking problem
-            solver[i] = crocoddyl.SolverFDDP(
+            solver[i] = crocoddyl.SolverFDDP2(
                 gait.createWalkingProblem(x0, value['stepLength'], value['stepHeight'], value['timeStep'],
                                           value['stepKnots'], value['supportKnots']))
         elif key == 'trotting':
             # Creating a trotting problem
-            solver[i] = crocoddyl.SolverFDDP(
+            solver[i] = crocoddyl.SolverFDDP2(
                 gait.createTrottingProblem(x0, value['stepLength'], value['stepHeight'], value['timeStep'],
                                            value['stepKnots'], value['supportKnots']))
         elif key == 'pacing':
             # Creating a pacing problem
-            solver[i] = crocoddyl.SolverFDDP(
+            solver[i] = crocoddyl.SolverFDDP2(
                 gait.createPacingProblem(x0, value['stepLength'], value['stepHeight'], value['timeStep'],
                                          value['stepKnots'], value['supportKnots']))
         elif key == 'bounding':
             # Creating a bounding problem
-            solver[i] = crocoddyl.SolverFDDP(
+            solver[i] = crocoddyl.SolverFDDP2(
                 gait.createBoundingProblem(x0, value['stepLength'], value['stepHeight'], value['timeStep'],
                                            value['stepKnots'], value['supportKnots']))
         elif key == 'jumping':
             # Creating a jumping problem
-            solver[i] = crocoddyl.SolverFDDP(
+            solver[i] = crocoddyl.SolverFDDP2(
                 gait.createJumpingProblem(x0, value['jumpHeight'], value['jumpLength'], value['timeStep'],
                                           value['groundKnots'], value['flyingKnots']))
 
